@@ -1,14 +1,14 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
 
 #include <cstdio>
 #include <windows.h>
 
-#include <cublas_v2.h>
-
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
+
+#include "helper_cudaVS.h"
 
 cudaError_t shflReduction(thrust::host_vector<double>& input);
 cudaError_t thrustReduction(thrust::host_vector<double>& input);
@@ -171,7 +171,7 @@ cudaError_t shflReduction(thrust::host_vector<double> &input)
 
     timer.start();
     // Launch a kernel on the GPU with one thread for each element.
-    shflReduce_k<<<GRID_DIM, BLOCK_DIM>>>(thrust::raw_pointer_cast(d_input.data()), thrust::raw_pointer_cast(d_output.data()));
+    CALL_KERNEL(shflReduce_k, GRID_DIM, BLOCK_DIM)(thrust::raw_pointer_cast(d_input.data()), thrust::raw_pointer_cast(d_output.data()));
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
